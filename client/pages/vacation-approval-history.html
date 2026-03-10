@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>휴가신청승인 관리 - AAA 관리자 홈</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/custom-select.css">
+    <link rel="stylesheet" href="../css/vacation-admin.css">
+    <link rel="stylesheet" href="../css/sort-styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>AAA 관리자 홈</h1>
+            <div class="sidebar-tabs">
+                <a href="../index.html" class="sidebar-tab">홈</a>
+                <a href="dashboard.html" class="sidebar-tab">대시보드</a>
+                <div class="sidebar-tab-dropdown">
+                    <div class="sidebar-tab sidebar-tab-with-dropdown">
+                        사용자 관리
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="sidebar-dropdown-content">
+                        <a href="users.html" class="sidebar-dropdown-item">재직자</a>
+                        <a href="resigned-users.html" class="sidebar-dropdown-item">퇴사자</a>
+                    </div>
+                </div>
+                <a href="gifts.html" class="sidebar-tab">선물보내기</a>
+                <div class="sidebar-tab-dropdown">
+                    <div class="sidebar-tab sidebar-tab-with-dropdown active">
+                        휴가 총괄 관리
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="sidebar-dropdown-content">
+                        <a href="vacation-requests.html" class="sidebar-dropdown-item">부여요청목록</a>
+                        <a href="vacation-history.html" class="sidebar-dropdown-item">부여내역</a>
+                        <a href="vacation-status.html" class="sidebar-dropdown-item">전사원 휴가현황</a>
+                        <a href="vacation-proxy.html" class="sidebar-dropdown-item" style="display: none;">휴가 대리결제</a>
+                        <a href="vacation-manual.html" class="sidebar-dropdown-item">임의휴가부여</a>
+                        <a href="vacation-approvers.html" class="sidebar-dropdown-item">권한관리자 지정</a>
+                        <a href="vacation-promotion.html" class="sidebar-dropdown-item" style="display: none;">연차촉진관리</a>
+                        <a href="vacation-calendar.html" class="sidebar-dropdown-item">휴가 캘린더</a>
+                        <a href="vacation-approval-history.html" class="sidebar-dropdown-item active">휴가신청승인 관리</a>
+                    </div>
+                </div>
+            </div>
+            <div class="user-info">
+                <span id="username-display"></span>
+                <button id="logout-btn" class="logout-btn">로그아웃</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>휴가신청승인 관리</h1>
+                <p class="subtitle">전사원의 휴가 신청 내역을 조회하고 관리할 수 있습니다</p>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-card">
+                    <div class="filter-group">
+                        <label>연도</label>
+                        <select id="year-filter" class="filter-select">
+                            <!-- JavaScript로 동적 생성 -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>이름 검색</label>
+                        <input id="name-filter" type="text" class="filter-input" placeholder="이름 입력">
+                    </div>
+                    <div class="filter-group">
+                        <label>필터 유형</label>
+                        <select id="view-type-filter" class="filter-select">
+                            <option value="">전체</option>
+                            <option value="department">부서별</option>
+                            <option value="leave_type">휴가타입별</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" id="department-filter-group" style="display: none;">
+                        <label>부서</label>
+                        <select id="department-filter" class="filter-select">
+                            <option value="">선택하세요</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" id="leave-type-filter-group" style="display: none;">
+                        <label>휴가 타입</label>
+                        <select id="leave-type-filter" class="filter-select">
+                            <option value="">선택하세요</option>
+                            <option value="연차">연차</option>
+                            <option value="예비군/민방위 연차">예비군/민방위 연차</option>
+                            <option value="병가">병가</option>
+                            <option value="경조사">경조사</option>
+                        </select>
+                    </div>
+                    <button id="search-btn" class="refresh-btn">조회</button>
+                    <button id="export-approval-btn" class="refresh-btn" style="background-color: #10b981;">엑셀</button>
+                </div>
+                <div id="active-filters" class="active-filters"></div>
+            </div>
+
+            <div class="history-table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th class="sortable-header" data-sort-key="name">이름 <span class="sort-icon">↕</span></th>
+                            <th class="sortable-header" data-sort-key="department">부서 <span class="sort-icon">↕</span></th>
+                            <th>휴가명</th>
+                            <th class="sortable-header" data-sort-key="leave_date">휴가일자 <span class="sort-icon">↕</span></th>
+                            <th>사용일수</th>
+                            <th class="sortable-header" data-sort-key="requested_date">신청일 <span class="sort-icon">↕</span></th>
+                            <th class="sortable-header" data-sort-key="status">승인상태 <span class="sort-icon">↕</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="leave-history-tbody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px;">
+                                데이터를 불러오는 중...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이징 -->
+            <div class="pagination-container" id="pagination-container" style="display: none; justify-content: center; align-items: center; gap: 8px; margin-top: 24px; padding: 20px; flex-wrap: wrap;">
+                <button id="first-page-btn" class="pagination-btn" onclick="goToFirstPage()">« 처음</button>
+                <button id="prev-page-btn" class="pagination-btn" onclick="goToPage(currentPage - 1)">‹ 이전</button>
+                
+                <!-- 페이지 번호 버튼들 -->
+                <div id="page-numbers" style="display: flex; gap: 4px; align-items: center;"></div>
+                
+                <button id="next-page-btn" class="pagination-btn" onclick="goToPage(currentPage + 1)">다음 ›</button>
+                <button id="last-page-btn" class="pagination-btn" onclick="goToLastPage()">마지막 »</button>
+                
+                <!-- 페이지 정보 -->
+                <span id="page-info" class="page-info" style="font-size: 14px; font-weight: 600; color: #495057; margin-left: 12px; padding: 8px 12px; background-color: #f8f9fa; border-radius: 6px;">1 / 1</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 승인 이력 상세 모달 -->
+    <div id="approval-detail-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background-color: white; border-radius: 12px; width: 95%; max-width: 1200px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+            <!-- 모달 헤더 -->
+            <div style="padding: 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.5rem; font-weight: 600; color: #1a1f36;">휴가 신청 상세</h3>
+                <button onclick="closeApprovalModal()" style="background: none; border: none; font-size: 2rem; color: #6b7280; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'">×</button>
+            </div>
+
+            <!-- 모달 본문 -->
+            <div style="padding: 24px; overflow-y: auto; flex: 1;">
+                <!-- 신청 내역 섹션 -->
+                <div style="margin-bottom: 32px;">
+                    <h4 style="font-size: 1.125rem; font-weight: 600; color: #1a1f36; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #3182F6;">📝 신청 내역</h4>
+                    <div id="leave-request-info" style="background-color: #f8f9fa; border-radius: 8px; padding: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                            <div>
+                                <span style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">신청자</span>
+                                <p id="modal-applicant" style="margin: 4px 0 0 0; color: #1a1f36; font-size: 1rem;">-</p>
+                            </div>
+                            <div>
+                                <span style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">부서</span>
+                                <p id="modal-department" style="margin: 4px 0 0 0; color: #1a1f36; font-size: 1rem;">-</p>
+                            </div>
+                            <div>
+                                <span style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">휴가 종류</span>
+                                <p id="modal-leave-type" style="margin: 4px 0 0 0; color: #1a1f36; font-size: 1rem;">-</p>
+                            </div>
+                            <div>
+                                <span style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">사용 일수</span>
+                                <p id="modal-workdays" style="margin: 4px 0 0 0; color: #1a1f36; font-size: 1rem;">-</p>
+                            </div>
+                            <div>
+                                <span style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">휴가 기간</span>
+                                <p id="modal-leave-date" style="margin: 4px 0 0 0; color: #1a1f36; font-size: 1rem;">-</p>
+                            </div>
+                            <div>
+                                <span style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">신청일</span>
+                                <p id="modal-requested-date" style="margin: 4px 0 0 0; color: #1a1f36; font-size: 1rem;">-</p>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <span style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">현재 상태</span>
+                                <p id="modal-status" style="margin: 4px 0 0 0;">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 승인 내역 섹션 -->
+                <div>
+                    <h4 style="font-size: 1.125rem; font-weight: 600; color: #1a1f36; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #10b981;">✅ 승인 내역</h4>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                            <thead>
+                                <tr style="background-color: #f8f9fa;">
+                                    <th style="padding: 14px; text-align: left; border-bottom: 2px solid #e5e7eb; font-weight: 600; color: #4a5568; font-size: 0.875rem;">승인자</th>
+                                    <th style="padding: 14px; text-align: center; border-bottom: 2px solid #e5e7eb; font-weight: 600; color: #4a5568; font-size: 0.875rem; width: 100px;">순차결재</th>
+                                    <th style="padding: 14px; text-align: left; border-bottom: 2px solid #e5e7eb; font-weight: 600; color: #4a5568; font-size: 0.875rem; width: 180px;">승인날짜</th>
+                                    <th style="padding: 14px; text-align: center; border-bottom: 2px solid #e5e7eb; font-weight: 600; color: #4a5568; font-size: 0.875rem; width: 100px;">승인상태</th>
+                                    <th style="padding: 14px; text-align: left; border-bottom: 2px solid #e5e7eb; font-weight: 600; color: #4a5568; font-size: 0.875rem; width: 200px;">반려메시지</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approval-history-tbody">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 40px; color: #6b7280;">데이터를 불러오는 중...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 모달 하단 버튼 -->
+            <div style="padding: 20px 24px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; justify-content: flex-end; background-color: #f9fafb;">
+                <button onclick="handleDelegateApproval('APPROVED')" style="padding: 12px 24px; background-color: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; font-size: 0.95rem;" onmouseover="this.style.backgroundColor='#059669'" onmouseout="this.style.backgroundColor='#10b981'">
+                    대리승인
+                </button>
+                <button onclick="handleDelegateApproval('REJECTED')" style="padding: 12px 24px; background-color: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; font-size: 0.95rem;" onmouseover="this.style.backgroundColor='#dc2626'" onmouseout="this.style.backgroundColor='#ef4444'">
+                    대리반려
+                </button>
+                <button onclick="closeApprovalModal()" style="padding: 12px 24px; background-color: #6b7280; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; font-size: 0.95rem;" onmouseover="this.style.backgroundColor='#4b5563'" onmouseout="this.style.backgroundColor='#6b7280'">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 엑셀 필터 모달 -->
+    <div id="excel-filter-modal" class="modal" style="display: none;" onclick="if(event.target === this) closeExcelFilterModal();">
+        <div class="modal-content" style="max-width: 680px;" onclick="event.stopPropagation();">
+            <div class="modal-header">
+                <h3>엑셀 필터 설정</h3>
+                <button class="close-btn" onclick="closeExcelFilterModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="detail-row">
+                        <span class="detail-label">연도</span>
+                        <select id="excel-year-filter" class="filter-select">
+                            <option value="">전체</option>
+                        </select>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">이름</span>
+                        <input id="excel-name-filter" type="text" class="filter-input" placeholder="이름 부분검색">
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">필터 유형</span>
+                        <select id="excel-view-type-filter" class="filter-select">
+                            <option value="">전체</option>
+                            <option value="department">부서별</option>
+                            <option value="leave_type">휴가타입별</option>
+                        </select>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">부서</span>
+                        <select id="excel-department-filter" class="filter-select" disabled>
+                            <option value="">선택하세요</option>
+                        </select>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">휴가 타입</span>
+                        <select id="excel-leave-type-filter" class="filter-select" disabled>
+                            <option value="">선택하세요</option>
+                            <option value="연차">연차</option>
+                            <option value="예비군/민방위 연차">예비군/민방위 연차</option>
+                            <option value="병가">병가</option>
+                            <option value="경조사">경조사</option>
+                        </select>
+                    </div>
+                    <div class="detail-row"></div>
+                    <div class="detail-row">
+                        <span class="detail-label">휴가 시작일(From)</span>
+                        <input id="excel-start-date-filter" type="date" class="filter-input">
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">휴가 시작일(To)</span>
+                        <input id="excel-end-date-filter" type="date" class="filter-input">
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">신청일(From)</span>
+                        <input id="excel-requested-start-date-filter" type="date" class="filter-input">
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">신청일(To)</span>
+                        <input id="excel-requested-end-date-filter" type="date" class="filter-input">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeExcelFilterModal()">취소</button>
+                <button id="excel-download-confirm-btn" class="modal-btn confirm">엑셀 다운로드</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/utils/config.js"></script>
+    <script src="../js/utils/custom-select.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/utils/auth.js"></script>
+    <script>
+        let currentPage = 1;
+        const pageSize = 20;
+        let totalPages = 1;
+        let sortState = { key: null, direction: 'asc' };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            controlSidebarMenus();
+            initializeYearFilter();
+            loadDepartments();
+            initializeExcelFilterModal();
+            loadLeaveHistory();
+
+            // 필터 유형 변경 이벤트
+            document.getElementById('view-type-filter').addEventListener('change', function() {
+                const viewType = this.value;
+                const deptGroup = document.getElementById('department-filter-group');
+                const leaveTypeGroup = document.getElementById('leave-type-filter-group');
+
+                if (viewType === 'department') {
+                    deptGroup.style.display = 'block';
+                    leaveTypeGroup.style.display = 'none';
+                } else if (viewType === 'leave_type') {
+                    deptGroup.style.display = 'none';
+                    leaveTypeGroup.style.display = 'block';
+                } else {
+                    deptGroup.style.display = 'none';
+                    leaveTypeGroup.style.display = 'none';
+                }
+            });
+
+            // 조회 버튼 클릭
+            document.getElementById('search-btn').addEventListener('click', function() {
+                currentPage = 1;
+                loadLeaveHistory();
+            });
+
+            // 이름 검색 엔터
+            document.getElementById('name-filter').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    currentPage = 1;
+                    loadLeaveHistory();
+                }
+            });
+
+            // 연도 변경
+            document.getElementById('year-filter').addEventListener('change', function() {
+                currentPage = 1;
+                loadLeaveHistory();
+            });
+
+            // 정렬 헤더 클릭
+            document.querySelectorAll('.sortable-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const key = this.dataset.sortKey;
+                    updateSortState(key);
+                    displayLeaveHistory(currentLeaveData || []);
+                });
+            });
+
+            document.getElementById('excel-view-type-filter').addEventListener('change', handleExcelViewTypeChange);
+            document.getElementById('excel-download-confirm-btn').addEventListener('click', handleExcelDownloadConfirm);
+        });
+
+        // 연도 선택 초기화
+        function initializeYearFilter() {
+            const yearSelect = document.getElementById('year-filter');
+            const currentYear = new Date().getFullYear();
+
+            const allOption = document.createElement('option');
+            allOption.value = '';
+            allOption.textContent = '전체';
+            yearSelect.appendChild(allOption);
+
+            // 현재 연도부터 5년 전까지 + 1년 후까지 (2026년 포함)
+            for (let year = currentYear + 1; year >= currentYear - 5; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = `${year}년`;
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // 부서 목록 로드
+        function loadDepartments() {
+            const departments = [
+                '경영관리실', 'New Tech사업부', '솔루션사업부', 'FCM사업부', 'SCM사업부',
+                'Innovation Center', 'Biz AI사업부', 'HRS사업부', 'DTE본부', '남부지사',
+                '중국지사', 'PUBLIC CLOUD사업부', 'ITS사업부', 'BAC사업부', 'BDS사업부',
+                'NGE본부', '대표이사'
+            ];
+
+            const select = document.getElementById('department-filter');
+            departments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept;
+                option.textContent = dept;
+                select.appendChild(option);
+            });
+        }
+
+        function initializeExcelFilterModal() {
+            const yearSelect = document.getElementById('excel-year-filter');
+            const mainYearOptions = document.querySelectorAll('#year-filter option');
+            mainYearOptions.forEach(option => {
+                const copied = document.createElement('option');
+                copied.value = option.value;
+                copied.textContent = option.textContent;
+                yearSelect.appendChild(copied);
+            });
+
+            const deptSelect = document.getElementById('excel-department-filter');
+            const mainDepartments = document.querySelectorAll('#department-filter option');
+            mainDepartments.forEach(option => {
+                const copied = document.createElement('option');
+                copied.value = option.value;
+                copied.textContent = option.textContent;
+                deptSelect.appendChild(copied);
+            });
+        }
+
+        function openExcelFilterModal() {
+            syncExcelModalWithCurrentFilters();
+            const modal = document.getElementById('excel-filter-modal');
+            modal.style.display = 'block';
+        }
+
+        function closeExcelFilterModal() {
+            const modal = document.getElementById('excel-filter-modal');
+            modal.style.display = 'none';
+        }
+
+        function syncExcelModalWithCurrentFilters() {
+            document.getElementById('excel-year-filter').value = document.getElementById('year-filter').value || '';
+            document.getElementById('excel-name-filter').value = document.getElementById('name-filter').value || '';
+            document.getElementById('excel-view-type-filter').value = document.getElementById('view-type-filter').value || '';
+            document.getElementById('excel-department-filter').value = document.getElementById('department-filter').value || '';
+            document.getElementById('excel-leave-type-filter').value = document.getElementById('leave-type-filter').value || '';
+            handleExcelViewTypeChange();
+        }
+
+        function handleExcelViewTypeChange() {
+            const viewType = document.getElementById('excel-view-type-filter').value;
+            const deptSelect = document.getElementById('excel-department-filter');
+            const leaveTypeSelect = document.getElementById('excel-leave-type-filter');
+
+            deptSelect.disabled = viewType !== 'department';
+            leaveTypeSelect.disabled = viewType !== 'leave_type';
+
+            if (viewType !== 'department') deptSelect.value = '';
+            if (viewType !== 'leave_type') leaveTypeSelect.value = '';
+        }
+
+        // 휴가 신청 이력 조회
+        async function loadLeaveHistory() {
+            try {
+                updateActiveFilters();
+                const requestBody = buildLeaveHistoryFilterPayload();
+
+                console.log('휴가 신청 이력 조회 요청:', requestBody);
+
+                const response = await fetch(`/admin/leave/management/history?page=${currentPage}&page_size=${pageSize}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('휴가 신청 이력 응답:', data);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const leaves = data.leaves || [];
+                totalPages = data.total_pages || 1;
+
+                displayLeaveHistory(leaves);
+                renderPagination();
+
+            } catch (error) {
+                console.error('휴가 신청 이력 조회 실패:', error);
+                document.getElementById('leave-history-tbody').innerHTML =
+                    '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #ef4444;">데이터를 불러오는데 실패했습니다.</td></tr>';
+            }
+        }
+
+        // 현재 필터 기준 API payload 생성
+        function buildLeaveHistoryFilterPayload() {
+            const yearValue = document.getElementById('year-filter').value;
+            const viewType = document.getElementById('view-type-filter').value;
+            const department = document.getElementById('department-filter').value;
+            const leaveType = document.getElementById('leave-type-filter').value;
+            const name = document.getElementById('name-filter').value.trim();
+
+            const requestBody = {};
+
+            if (yearValue) {
+                requestBody.year = parseInt(yearValue, 10);
+            }
+
+            if (viewType) {
+                requestBody.view_type = viewType;
+                if (viewType === 'department' && department) {
+                    requestBody.department = department;
+                } else if (viewType === 'leave_type' && leaveType) {
+                    requestBody.leave_type = leaveType;
+                }
+            }
+
+            if (name) {
+                requestBody.name = name;
+            }
+
+            // 날짜 필터 UI가 추후 추가될 수 있어, 존재하면 함께 전송
+            const startDateEl = document.getElementById('start-date-filter');
+            const endDateEl = document.getElementById('end-date-filter');
+            const requestedStartEl = document.getElementById('requested-start-date-filter');
+            const requestedEndEl = document.getElementById('requested-end-date-filter');
+
+            if (startDateEl && startDateEl.value) requestBody.start_date = startDateEl.value;
+            if (endDateEl && endDateEl.value) requestBody.end_date = endDateEl.value;
+            if (requestedStartEl && requestedStartEl.value) requestBody.requested_start_date = requestedStartEl.value;
+            if (requestedEndEl && requestedEndEl.value) requestBody.requested_end_date = requestedEndEl.value;
+
+            return requestBody;
+        }
+
+        // 휴가 신청 이력 표시
+        function displayLeaveHistory(leaves) {
+            const tbody = document.getElementById('leave-history-tbody');
+
+            // 전역 변수에 데이터 저장
+            currentLeaveData = leaves;
+
+            if (!leaves || leaves.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">조회된 데이터가 없습니다.</td></tr>';
+                return;
+            }
+
+            const sortedLeaves = getSortedLeaves(leaves);
+
+            tbody.innerHTML = sortedLeaves.map((leave, idx) => {
+                const startIdx = (currentPage - 1) * pageSize;
+                const nameWithPosition = `${leave.name} ${leave.job_position}`;
+                const leaveDate = formatDateRange(leave.start_date, leave.end_date);
+                const requestedDate = formatDateTime(leave.requested_date);
+                const statusBadge = getStatusBadge(leave.status);
+
+                return `
+                    <tr style="cursor: pointer; transition: background-color 0.15s;"
+                        onclick="showApprovalDetail(${leave.id})"
+                        onmouseover="this.style.backgroundColor='#f9fafb'"
+                        onmouseout="this.style.backgroundColor='transparent'">
+                        <td>${startIdx + idx + 1}</td>
+                        <td>${nameWithPosition}</td>
+                        <td>${leave.department}</td>
+                        <td>${leave.leave_type}</td>
+                        <td>${leaveDate}</td>
+                        <td>${leave.workdays_count}일</td>
+                        <td>${requestedDate}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            updateSortIcons();
+        }
+
+        function updateSortState(key) {
+            if (sortState.key === key) {
+                sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortState.key = key;
+                sortState.direction = 'asc';
+            }
+        }
+
+        function updateSortIcons() {
+            document.querySelectorAll('.sortable-header').forEach(header => {
+                const icon = header.querySelector('.sort-icon');
+                const key = header.dataset.sortKey;
+                header.classList.remove('sort-active');
+                if (!icon) return;
+
+                if (sortState.key === key) {
+                    header.classList.add('sort-active');
+                    icon.textContent = sortState.direction === 'asc' ? '▲' : '▼';
+                } else {
+                    icon.textContent = '↕';
+                }
+            });
+        }
+
+        function getSortedLeaves(leaves) {
+            if (!sortState.key) return leaves;
+
+            const sorted = [...leaves];
+            const direction = sortState.direction === 'asc' ? 1 : -1;
+
+            sorted.sort((a, b) => {
+                switch (sortState.key) {
+                    case 'name':
+                        return direction * String(a.name || '').localeCompare(String(b.name || ''), 'ko');
+                    case 'department':
+                        return direction * String(a.department || '').localeCompare(String(b.department || ''), 'ko');
+                    case 'leave_date': {
+                        const aStart = new Date(a.start_date).getTime() || 0;
+                        const bStart = new Date(b.start_date).getTime() || 0;
+                        if (aStart !== bStart) return direction * (aStart - bStart);
+                        const aEnd = new Date(a.end_date).getTime() || 0;
+                        const bEnd = new Date(b.end_date).getTime() || 0;
+                        return direction * (aEnd - bEnd);
+                    }
+                    case 'requested_date': {
+                        const aReq = new Date(a.requested_date).getTime() || 0;
+                        const bReq = new Date(b.requested_date).getTime() || 0;
+                        return direction * (aReq - bReq);
+                    }
+                    case 'status': {
+                        const aStatus = getStatusSortText(a.status);
+                        const bStatus = getStatusSortText(b.status);
+                        return direction * aStatus.localeCompare(bStatus, 'ko');
+                    }
+                    default:
+                        return 0;
+                }
+            });
+
+            return sorted;
+        }
+
+        function getStatusSortText(status) {
+            const statusMap = {
+                'APPROVED': '승인',
+                'REJECTED': '반려',
+                'CANCELLED': '취소',
+                'PENDING': '대기',
+                'REQUESTED': '대기',
+                'CANCEL_REQUESTED': '취소대기',
+                'CANCEL_PENDING': '승인취소요청',
+                'CANCEL_APPROVED': '승인취소',
+                '승인': '승인',
+                '반려': '반려',
+                '취소': '취소',
+                '대기': '대기',
+                '취소대기': '취소대기',
+                '승인취소요청': '승인취소요청',
+                '승인취소': '승인취소'
+            };
+            return statusMap[status] || String(status || '');
+        }
+
+        function updateActiveFilters() {
+            const container = document.getElementById('active-filters');
+            if (!container) return;
+
+            const yearValue = document.getElementById('year-filter').value;
+            const viewType = document.getElementById('view-type-filter').value;
+            const department = document.getElementById('department-filter').value;
+            const leaveType = document.getElementById('leave-type-filter').value;
+            const name = document.getElementById('name-filter').value.trim();
+
+            const tags = [];
+
+            tags.push(`연도: ${yearValue ? `${yearValue}년` : '전체'}`);
+
+            if (name) {
+                tags.push(`이름: ${name}`);
+            }
+
+            if (viewType === 'department') {
+                tags.push(`필터: 부서별`);
+                if (department) {
+                    tags.push(`부서: ${department}`);
+                }
+            } else if (viewType === 'leave_type') {
+                tags.push(`필터: 휴가타입별`);
+                if (leaveType) {
+                    tags.push(`휴가타입: ${leaveType}`);
+                }
+            } else {
+                tags.push('필터: 전체');
+            }
+
+            if (tags.length === 0) {
+                container.innerHTML = '<span class="filter-tag">필터 없음</span>';
+                return;
+            }
+
+            container.innerHTML = tags.map(text => `<span class="filter-tag">${text}</span>`).join('');
+        }
+
+        // 날짜 범위 포맷 (UTC 값 그대로 표시)
+        function formatDateRange(startDate, endDate) {
+            function toDateStr(dateString) {
+                const d = new Date(dateString);
+                const y = d.getUTCFullYear();
+                const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+                const day = String(d.getUTCDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            }
+            const start = toDateStr(startDate);
+            const end = toDateStr(endDate);
+            return start === end ? start : `${start} ~ ${end}`;
+        }
+
+        // 날짜 시간 포맷 (시/분/초 포함) - UTC 시간 그대로 표시
+        function formatDateTime(dateTime) {
+            const date = new Date(dateTime);
+            const year = date.getUTCFullYear();
+            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(date.getUTCDate()).padStart(2, '0');
+            const hours = String(date.getUTCHours()).padStart(2, '0');
+            const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+            const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        // 상태 배지
+        function getStatusBadge(status) {
+            const statusMap = {
+                'APPROVED': { text: '승인', color: '#10b981', bg: '#d1fae5' },
+                'REJECTED': { text: '반려', color: '#ef4444', bg: '#fee2e2' },
+                'CANCELLED': { text: '취소', color: '#6b7280', bg: '#f3f4f6' },
+                'PENDING': { text: '대기', color: '#f59e0b', bg: '#fef3c7' },
+                'REQUESTED': { text: '대기', color: '#f59e0b', bg: '#fef3c7' },
+                'CANCEL_REQUESTED': { text: '취소대기', color: '#f59e0b', bg: '#fef3c7' },
+                'CANCEL_PENDING': { text: '승인취소요청', color: '#f59e0b', bg: '#fef3c7' },
+                'CANCEL_APPROVED': { text: '승인취소', color: '#6b7280', bg: '#f3f4f6' }
+            };
+
+            const statusInfo = statusMap[status] || { text: status, color: '#6b7280', bg: '#f3f4f6' };
+
+            // CANCEL_PENDING의 경우 글자 크기를 1px 작게 설정
+            const fontSize = status === 'CANCEL_PENDING' ? '11px' : '12px';
+
+            return `<span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: ${fontSize}; font-weight: 600; color: ${statusInfo.color}; background-color: ${statusInfo.bg}; white-space: nowrap;">${statusInfo.text}</span>`;
+        }
+
+        // 페이징 렌더링
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            const pageInfo = document.getElementById('page-info');
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            const firstBtn = document.getElementById('first-page-btn');
+            const prevBtn = document.getElementById('prev-page-btn');
+            const nextBtn = document.getElementById('next-page-btn');
+            const lastBtn = document.getElementById('last-page-btn');
+
+            if (!container || !pageInfo) return;
+
+            if (totalPages <= 1) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+            pageInfo.textContent = `${currentPage} / ${totalPages}`;
+
+            // 페이지 번호 버튼 생성
+            if (pageNumbersContainer) {
+                pageNumbersContainer.innerHTML = '';
+                
+                const maxPageButtons = 7; // 최대 표시할 페이지 버튼 수
+                let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+                let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+                
+                // endPage가 totalPages에 가까우면 startPage 조정
+                if (endPage - startPage < maxPageButtons - 1) {
+                    startPage = Math.max(1, endPage - maxPageButtons + 1);
+                }
+                
+                // 처음 페이지가 1이 아니면 1번과 "..." 표시
+                if (startPage > 1) {
+                    const firstPageBtn = document.createElement('button');
+                    firstPageBtn.className = 'pagination-page-btn';
+                    firstPageBtn.textContent = '1';
+                    firstPageBtn.onclick = () => goToPage(1);
+                    pageNumbersContainer.appendChild(firstPageBtn);
+                    
+                    if (startPage > 2) {
+                        const ellipsis = document.createElement('span');
+                        ellipsis.className = 'pagination-ellipsis';
+                        ellipsis.textContent = '...';
+                        ellipsis.style.pointerEvents = 'none';
+                        ellipsis.style.padding = '0 4px';
+                        ellipsis.style.color = '#6c757d';
+                        pageNumbersContainer.appendChild(ellipsis);
+                    }
+                }
+                
+                // 페이지 번호 버튼들 생성
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = `pagination-page-btn ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.textContent = i;
+                    pageBtn.onclick = () => goToPage(i);
+                    pageNumbersContainer.appendChild(pageBtn);
+                }
+                
+                // 마지막 페이지가 endPage가 아니면 "..."과 마지막 페이지 표시
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        const ellipsis = document.createElement('span');
+                        ellipsis.className = 'pagination-ellipsis';
+                        ellipsis.textContent = '...';
+                        ellipsis.style.pointerEvents = 'none';
+                        ellipsis.style.padding = '0 4px';
+                        ellipsis.style.color = '#6c757d';
+                        pageNumbersContainer.appendChild(ellipsis);
+                    }
+                    
+                    const lastPageBtn = document.createElement('button');
+                    lastPageBtn.className = 'pagination-page-btn';
+                    lastPageBtn.textContent = totalPages;
+                    lastPageBtn.onclick = () => goToPage(totalPages);
+                    pageNumbersContainer.appendChild(lastPageBtn);
+                }
+            }
+
+            // 처음/이전/다음/마지막 버튼 활성화/비활성화
+            if (firstBtn) {
+                firstBtn.disabled = currentPage <= 1;
+                firstBtn.style.opacity = currentPage <= 1 ? '0.5' : '1';
+                firstBtn.style.cursor = currentPage <= 1 ? 'not-allowed' : 'pointer';
+            }
+
+            if (prevBtn) {
+                prevBtn.disabled = currentPage <= 1;
+                prevBtn.style.opacity = currentPage <= 1 ? '0.5' : '1';
+                prevBtn.style.cursor = currentPage <= 1 ? 'not-allowed' : 'pointer';
+            }
+
+            if (nextBtn) {
+                nextBtn.disabled = currentPage >= totalPages;
+                nextBtn.style.opacity = currentPage >= totalPages ? '0.5' : '1';
+                nextBtn.style.cursor = currentPage >= totalPages ? 'not-allowed' : 'pointer';
+            }
+
+            if (lastBtn) {
+                lastBtn.disabled = currentPage >= totalPages;
+                lastBtn.style.opacity = currentPage >= totalPages ? '0.5' : '1';
+                lastBtn.style.cursor = currentPage >= totalPages ? 'not-allowed' : 'pointer';
+            }
+        }
+
+        // 페이지 이동
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+            currentPage = page;
+            loadLeaveHistory();
+        }
+
+        // 처음 페이지로 이동
+        function goToFirstPage() {
+            if (currentPage > 1) {
+                goToPage(1);
+            }
+        }
+
+        // 마지막 페이지로 이동
+        function goToLastPage() {
+            if (currentPage < totalPages) {
+                goToPage(totalPages);
+            }
+        }
+
+        // 전역 변수로 현재 휴가 데이터 저장
+        let currentLeaveData = null;
+        // 현재 선택된 휴가 정보 저장 (대리승인/반려용)
+        let currentSelectedLeave = null;
+
+        // 승인 상세 모달 표시
+        async function showApprovalDetail(leaveId) {
+            try {
+                const modal = document.getElementById('approval-detail-modal');
+                const tbody = document.getElementById('approval-history-tbody');
+
+                // 모달 표시
+                modal.style.display = 'flex';
+
+                // 로딩 상태 표시
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #6b7280;">데이터를 불러오는 중...</td></tr>';
+
+                // 현재 휴가 목록에서 해당 ID의 데이터 찾기
+                const leaveInfo = findLeaveDataById(leaveId);
+                
+                // 현재 선택된 휴가 정보 저장 (대리승인/반려용)
+                currentSelectedLeave = leaveInfo;
+
+                // 신청 내역 표시
+                if (leaveInfo) {
+                    displayLeaveRequestInfo(leaveInfo);
+                }
+
+                console.log('승인 이력 조회 요청:', leaveId);
+
+                const response = await fetch(`/admin/leave/management/approvalHistory?id=${leaveId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('승인 이력 응답:', data);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const approvalHistory = data.approval_history || [];
+                displayApprovalHistory(approvalHistory);
+
+            } catch (error) {
+                console.error('승인 이력 조회 실패:', error);
+                const tbody = document.getElementById('approval-history-tbody');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #ef4444;">데이터를 불러오는데 실패했습니다.</td></tr>';
+            }
+        }
+
+        // 휴가 데이터 찾기
+        function findLeaveDataById(leaveId) {
+            // displayLeaveHistory에서 사용한 leaves 배열에서 찾기
+            const tbody = document.getElementById('leave-history-tbody');
+            const rows = tbody.querySelectorAll('tr');
+
+            for (let row of rows) {
+                if (row.onclick && row.onclick.toString().includes(leaveId)) {
+                    // 여기서는 전역 변수에 저장된 데이터 사용
+                    return currentLeaveData ? currentLeaveData.find(leave => leave.id === leaveId) : null;
+                }
+            }
+            return null;
+        }
+
+        // 신청 내역 표시
+        function displayLeaveRequestInfo(leave) {
+            document.getElementById('modal-applicant').textContent = `${leave.name} ${leave.job_position}`;
+            document.getElementById('modal-department').textContent = leave.department;
+            document.getElementById('modal-leave-type').textContent = leave.leave_type;
+            document.getElementById('modal-workdays').textContent = `${leave.workdays_count}일`;
+            document.getElementById('modal-leave-date').textContent = formatDateRange(leave.start_date, leave.end_date);
+            document.getElementById('modal-requested-date').textContent = formatDateTime(leave.requested_date);
+            document.getElementById('modal-status').innerHTML = getStatusBadge(leave.status);
+        }
+
+        // 승인 이력 표시
+        function displayApprovalHistory(history) {
+            const tbody = document.getElementById('approval-history-tbody');
+
+            if (!history || history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #6b7280;">승인 이력이 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = history.map((item, idx) => {
+                const approverInfo = `${item.approver_name} ${item.job_position} (${item.department})`;
+                const procDate = formatDateTime(item.proc_date);
+                const statusBadge = getStatusBadge(item.is_approved);
+                const rejectMsg = item.reject_message || '-';
+                const bgColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
+
+                return `
+                    <tr style="border-bottom: 1px solid #e5e7eb; background-color: ${bgColor};">
+                        <td style="padding: 14px; color: #1a1f36; font-size: 0.9rem;">${approverInfo}</td>
+                        <td style="padding: 14px; color: #1a1f36; text-align: center; font-weight: 600; font-size: 0.9rem;">${item.approval_seq}차</td>
+                        <td style="padding: 14px; color: #1a1f36; font-size: 0.875rem; font-family: monospace;">${procDate}</td>
+                        <td style="padding: 14px; text-align: center;">${statusBadge}</td>
+                        <td style="padding: 14px; color: ${item.reject_message ? '#ef4444' : '#6b7280'}; font-size: 0.875rem;">${rejectMsg}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 모달 닫기
+        function closeApprovalModal() {
+            const modal = document.getElementById('approval-detail-modal');
+            modal.style.display = 'none';
+        }
+
+        // 모달 외부 클릭시 닫기
+        document.getElementById('approval-detail-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeApprovalModal();
+            }
+        });
+
+        document.getElementById('export-approval-btn').addEventListener('click', openExcelFilterModal);
+
+        function buildExcelFilterPayloadFromModal() {
+            const yearValue = document.getElementById('excel-year-filter').value;
+            const viewType = document.getElementById('excel-view-type-filter').value;
+            const department = document.getElementById('excel-department-filter').value;
+            const leaveType = document.getElementById('excel-leave-type-filter').value;
+            const name = document.getElementById('excel-name-filter').value.trim();
+            const startDate = document.getElementById('excel-start-date-filter').value;
+            const endDate = document.getElementById('excel-end-date-filter').value;
+            const requestedStartDate = document.getElementById('excel-requested-start-date-filter').value;
+            const requestedEndDate = document.getElementById('excel-requested-end-date-filter').value;
+
+            const payload = {};
+            if (yearValue) payload.year = parseInt(yearValue, 10);
+            if (viewType) payload.view_type = viewType;
+            if (name) payload.name = name;
+            if (startDate) payload.start_date = startDate;
+            if (endDate) payload.end_date = endDate;
+            if (requestedStartDate) payload.requested_start_date = requestedStartDate;
+            if (requestedEndDate) payload.requested_end_date = requestedEndDate;
+
+            if (viewType === 'department') {
+                if (!department) {
+                    throw new Error('필터 유형이 부서별일 때는 부서를 선택해야 합니다.');
+                }
+                payload.department = department;
+            }
+
+            if (viewType === 'leave_type') {
+                if (!leaveType) {
+                    throw new Error('필터 유형이 휴가타입별일 때는 휴가 타입을 선택해야 합니다.');
+                }
+                payload.leave_type = leaveType;
+            }
+
+            if (startDate && endDate && startDate > endDate) {
+                throw new Error('휴가 시작일 범위가 올바르지 않습니다. (From <= To)');
+            }
+
+            if (requestedStartDate && requestedEndDate && requestedStartDate > requestedEndDate) {
+                throw new Error('신청일 범위가 올바르지 않습니다. (From <= To)');
+            }
+
+            return payload;
+        }
+
+        async function handleExcelDownloadConfirm() {
+            const confirmBtn = document.getElementById('excel-download-confirm-btn');
+            const originalText = confirmBtn.textContent;
+
+            try {
+                const requestBody = buildExcelFilterPayloadFromModal();
+
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = '다운로드 중...';
+
+                console.log('휴가 신청 이력 엑셀 다운로드 요청:', requestBody);
+
+                const response = await fetch('/admin/leave/management/history/excel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    let errorMessage = `HTTP error! status: ${response.status}`;
+                    try {
+                        const errorJson = await response.json();
+                        if (errorJson && errorJson.error) {
+                            errorMessage = errorJson.error;
+                        }
+                    } catch (_e) {
+                        // ignore
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const blob = await response.blob();
+                if (!blob || blob.size === 0) {
+                    throw new Error('다운로드할 엑셀 파일이 비어 있습니다.');
+                }
+
+                const disposition = response.headers.get('content-disposition') || '';
+                const fileNameMatch = disposition.match(/filename\*?=(?:UTF-8''|")?([^\";]+)/i);
+                const decodedName = fileNameMatch ? decodeURIComponent(fileNameMatch[1].replace(/"/g, '').trim()) : '';
+                const fallbackYear = document.getElementById('excel-year-filter').value || 'all';
+                const fileName = decodedName || `leave_history_${fallbackYear}.xlsx`;
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+                closeExcelFilterModal();
+            } catch (error) {
+                console.error('휴가 신청 이력 엑셀 다운로드 실패:', error);
+                alert(`엑셀 다운로드에 실패했습니다.\n${error.message}`);
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = originalText;
+            }
+        }
+
+        // 대리승인/반려 처리 함수
+        async function handleDelegateApproval(status) {
+            if (!currentSelectedLeave) {
+                alert('휴가 정보를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 반려인 경우 반려 사유 입력 받기
+            let rejectMessage = '';
+            if (status === 'REJECTED') {
+                rejectMessage = prompt('반려 사유를 입력해주세요:');
+                if (rejectMessage === null) {
+                    // 취소 버튼 클릭 시
+                    return;
+                }
+                if (rejectMessage.trim() === '') {
+                    alert('반려 사유를 입력해주세요.');
+                    return;
+                }
+            }
+
+            // 확인 대화상자
+            const actionText = status === 'APPROVED' ? '승인' : '반려';
+            if (!confirm(`정말로 이 휴가 신청을 ${actionText}하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                // 로그인한 관리자 ID 가져오기 (이메일 형식)
+                const adminId = localStorage.getItem('userId') || localStorage.getItem('username');
+                if (!adminId) {
+                    alert('관리자 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
+                    return;
+                }
+
+                // 클릭한 건의 user_id 사용
+                const userId = currentSelectedLeave.user_id;
+                if (!userId) {
+                    alert('휴가 신청자 정보를 찾을 수 없습니다.');
+                    return;
+                }
+
+                // id는 숫자로 변환
+                const leaveId = parseInt(currentSelectedLeave.id);
+                if (isNaN(leaveId)) {
+                    alert('휴가 신청 ID가 유효하지 않습니다.');
+                    return;
+                }
+
+                const requestBody = {
+                    id: leaveId,
+                    admin_id: adminId,
+                    user_id: userId,
+                    status: status,
+                    reject_message: rejectMessage || ''
+                };
+
+                console.log('📤 [클라이언트] 대리승인/반려 API 요청 본문:', requestBody);
+                console.log('📤 [클라이언트] 요청 본문 JSON:', JSON.stringify(requestBody, null, 2));
+                console.log('📤 [클라이언트] 각 필드 타입:', {
+                    id: typeof leaveId,
+                    admin_id: typeof adminId,
+                    user_id: typeof userId,
+                    status: typeof status,
+                    reject_message: typeof rejectMessage
+                });
+
+                const response = await fetch('/admin/leave/approval', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('대리승인/반려 API 응답:', data);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // 성공 메시지 표시
+                alert(`${actionText}이 완료되었습니다.`);
+                
+                // 모달 닫기
+                closeApprovalModal();
+                
+                // 목록 새로고침
+                loadLeaveHistory();
+
+            } catch (error) {
+                console.error('대리승인/반려 처리 실패:', error);
+                alert(`${actionText} 처리 중 오류가 발생했습니다: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

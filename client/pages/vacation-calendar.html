@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>휴가 캘린더 - AAA 관리자 홈</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/custom-select.css">
+    <link rel="stylesheet" href="../css/vacation-admin.css">
+    <style>
+        .calendar-container {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .calendar-nav h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1f36;
+        }
+        .calendar-nav button {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #374151;
+            transition: all 0.15s;
+        }
+        .calendar-nav button:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        .calendar-header-cell {
+            padding: 10px 4px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .calendar-header-cell:nth-child(1) { color: #ef4444; }
+        .calendar-header-cell:nth-child(7) { color: #3b82f6; }
+        .calendar-cell {
+            min-height: 100px;
+            padding: 4px;
+            border-right: 1px solid #f3f4f6;
+            border-bottom: 1px solid #f3f4f6;
+            position: relative;
+            cursor: default;
+        }
+        .calendar-cell:nth-child(7n) { border-right: none; }
+        .calendar-cell.other-month { background: #fafafa; }
+        .calendar-cell.today { background: #eff6ff; }
+        .calendar-date {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            padding: 2px 6px;
+            display: inline-block;
+        }
+        .calendar-cell.other-month .calendar-date { color: #d1d5db; }
+        .calendar-cell:nth-child(7n+1) .calendar-date { color: #ef4444; }
+        .calendar-cell:nth-child(7n) .calendar-date { color: #3b82f6; }
+        .calendar-cell.today .calendar-date {
+            background: #3b82f6;
+            color: #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .leave-tag {
+            display: block;
+            padding: 2px 6px;
+            margin: 1px 2px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        .leave-tag:hover { opacity: 0.85; }
+        .leave-tag.type-annual { background: #dbeafe; color: #1e40af; }
+        .leave-tag.type-sick { background: #fef3c7; color: #92400e; }
+        .leave-tag.type-special { background: #e0e7ff; color: #3730a3; }
+        .leave-tag.type-other { background: #f3f4f6; color: #374151; }
+        .leave-more {
+            font-size: 11px;
+            color: #6b7280;
+            padding: 1px 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .leave-more:hover { color: #3b82f6; }
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .day-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .day-modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .day-modal-content h3 {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .day-leave-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .day-leave-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>AAA 관리자 홈</h1>
+            <div class="sidebar-tabs">
+                <a href="../index.html" class="sidebar-tab">홈</a>
+                <a href="dashboard.html" class="sidebar-tab">대시보드</a>
+                <div class="sidebar-tab-dropdown">
+                    <div class="sidebar-tab sidebar-tab-with-dropdown">
+                        사용자 관리
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="sidebar-dropdown-content">
+                        <a href="users.html" class="sidebar-dropdown-item">재직자</a>
+                        <a href="resigned-users.html" class="sidebar-dropdown-item">퇴사자</a>
+                    </div>
+                </div>
+                <a href="gifts.html" class="sidebar-tab">선물보내기</a>
+                <div class="sidebar-tab-dropdown">
+                    <div class="sidebar-tab sidebar-tab-with-dropdown active">
+                        휴가 총괄 관리
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="sidebar-dropdown-content">
+                        <a href="vacation-requests.html" class="sidebar-dropdown-item">부여요청목록</a>
+                        <a href="vacation-history.html" class="sidebar-dropdown-item">부여내역</a>
+                        <a href="vacation-status.html" class="sidebar-dropdown-item">전사원 휴가현황</a>
+                        <a href="vacation-proxy.html" class="sidebar-dropdown-item" style="display: none;">휴가 대리결제</a>
+                        <a href="vacation-manual.html" class="sidebar-dropdown-item">임의휴가부여</a>
+                        <a href="vacation-approvers.html" class="sidebar-dropdown-item">권한관리자 지정</a>
+                        <a href="vacation-promotion.html" class="sidebar-dropdown-item" style="display: none;">연차촉진관리</a>
+                        <a href="vacation-calendar.html" class="sidebar-dropdown-item active">휴가 캘린더</a>
+                        <a href="vacation-approval-history.html" class="sidebar-dropdown-item">휴가신청승인 관리</a>
+                    </div>
+                </div>
+            </div>
+            <div class="user-info">
+                <span id="username-display"></span>
+                <button id="logout-btn" class="logout-btn">로그아웃</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>휴가 캘린더</h1>
+                <p class="subtitle">전사원의 휴가 일정을 달력으로 확인할 수 있습니다</p>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-card">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>부서</label>
+                            <select id="dept-filter" class="filter-select">
+                                <option value="">전체</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>이름 검색</label>
+                            <input id="name-filter" type="text" class="filter-input" placeholder="이름 입력">
+                        </div>
+                        <div class="filter-group">
+                            <label>상태</label>
+                            <select id="status-filter" class="filter-select">
+                                <option value="">전체</option>
+                                <option value="APPROVED" selected>승인</option>
+                                <option value="PENDING">대기</option>
+                                <option value="REQUESTED">요청</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-nav">
+                    <button id="prev-month-btn">◀ 이전</button>
+                    <h2 id="calendar-title"></h2>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="today-btn">오늘</button>
+                        <button id="next-month-btn">다음 ▶</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+            </div>
+
+            <div style="margin-top: 16px; display: flex; gap: 16px; font-size: 12px; color: #6b7280;">
+                <span><span class="leave-tag type-annual" style="display: inline; padding: 2px 8px;">연차</span></span>
+                <span><span class="leave-tag type-sick" style="display: inline; padding: 2px 8px;">병가</span></span>
+                <span><span class="leave-tag type-special" style="display: inline; padding: 2px 8px;">경조사/예비군</span></span>
+                <span><span class="leave-tag type-other" style="display: inline; padding: 2px 8px;">기타</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 날짜 상세 모달 -->
+    <div id="day-modal" class="day-modal" onclick="if(event.target===this) closeDayModal()">
+        <div class="day-modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 id="day-modal-title"></h3>
+                <button onclick="closeDayModal()" style="background: none; border: none; font-size: 24px; color: #6b7280; cursor: pointer;">×</button>
+            </div>
+            <div id="day-modal-body"></div>
+        </div>
+    </div>
+
+    <script src="../js/utils/config.js"></script>
+    <script src="../js/utils/custom-select.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/utils/auth.js"></script>
+    <script>
+        let currentYear, currentMonth;
+        let leaveData = [];
+        const MAX_TAGS = 3;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            controlSidebarMenus();
+
+            const now = new Date();
+            currentYear = now.getFullYear();
+            currentMonth = now.getMonth();
+
+            loadDepartments();
+            loadCalendarData();
+
+            document.getElementById('prev-month-btn').addEventListener('click', () => { changeMonth(-1); });
+            document.getElementById('next-month-btn').addEventListener('click', () => { changeMonth(1); });
+            document.getElementById('today-btn').addEventListener('click', () => {
+                const n = new Date();
+                currentYear = n.getFullYear();
+                currentMonth = n.getMonth();
+                loadCalendarData();
+            });
+
+            document.getElementById('dept-filter').addEventListener('change', () => { renderCalendar(); });
+            document.getElementById('status-filter').addEventListener('change', () => { loadCalendarData(); });
+            document.getElementById('name-filter').addEventListener('input', () => { renderCalendar(); });
+        });
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            loadCalendarData();
+        }
+
+        async function loadDepartments() {
+            try {
+                const res = await fetch('/api/getDepartmentList');
+                const data = await res.json();
+                const select = document.getElementById('dept-filter');
+                (data.departments || []).forEach(dept => {
+                    const opt = document.createElement('option');
+                    opt.value = dept;
+                    opt.textContent = dept;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                console.error('부서 목록 로드 실패:', e);
+            }
+        }
+
+        async function loadCalendarData() {
+            try {
+                const status = document.getElementById('status-filter').value;
+                const body = { year: currentYear };
+                if (status) {
+                    body.view_type = '';
+                }
+
+                const res = await fetch(`/admin/leave/management/history?page=1&page_size=500`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                leaveData = (data.leaves || []).filter(l => {
+                    if (status && l.status !== status) return false;
+                    const start = new Date(l.start_date);
+                    const end = new Date(l.end_date);
+                    const monthStart = new Date(Date.UTC(currentYear, currentMonth, 1));
+                    const monthEnd = new Date(Date.UTC(currentYear, currentMonth + 1, 0));
+                    return start <= monthEnd && end >= monthStart;
+                });
+
+                console.log(`캘린더 데이터 로드: ${leaveData.length}건`);
+                renderCalendar();
+            } catch (e) {
+                console.error('캘린더 데이터 로드 실패:', e);
+            }
+        }
+
+        function getLeaveTypeClass(type) {
+            if (!type) return 'type-other';
+            if (type.includes('연차')) return 'type-annual';
+            if (type.includes('병가')) return 'type-sick';
+            if (type.includes('경조') || type.includes('예비군') || type.includes('민방위')) return 'type-special';
+            return 'type-other';
+        }
+
+        function getLeavesForDate(dateStr) {
+            const dept = document.getElementById('dept-filter').value;
+            const name = document.getElementById('name-filter').value.trim().toLowerCase();
+
+            return leaveData.filter(l => {
+                const start = new Date(l.start_date);
+                const end = new Date(l.end_date);
+                const sStr = `${start.getUTCFullYear()}-${String(start.getUTCMonth()+1).padStart(2,'0')}-${String(start.getUTCDate()).padStart(2,'0')}`;
+                const eStr = `${end.getUTCFullYear()}-${String(end.getUTCMonth()+1).padStart(2,'0')}-${String(end.getUTCDate()).padStart(2,'0')}`;
+
+                if (dateStr < sStr || dateStr > eStr) return false;
+                if (dept && l.department !== dept) return false;
+                if (name && !(l.name || '').toLowerCase().includes(name)) return false;
+                return true;
+            }).sort((a, b) => {
+                // 셀/상세 모두 기본적으로 이름 가나다순 정렬
+                const nameCompare = (a.name || '').localeCompare((b.name || ''), 'ko-KR');
+                if (nameCompare !== 0) return nameCompare;
+
+                // 같은 이름일 때는 휴가 종류로 보조 정렬
+                return (a.leave_type || '').localeCompare((b.leave_type || ''), 'ko-KR');
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const title = document.getElementById('calendar-title');
+            title.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const prevDays = new Date(currentYear, currentMonth, 0).getDate();
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+            let html = '';
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            dayNames.forEach(d => { html += `<div class="calendar-header-cell">${d}</div>`; });
+
+            const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+            for (let i = 0; i < totalCells; i++) {
+                let day, dateStr, isOther = false;
+
+                if (i < firstDay) {
+                    day = prevDays - firstDay + i + 1;
+                    const pm = currentMonth === 0 ? 12 : currentMonth;
+                    const py = currentMonth === 0 ? currentYear - 1 : currentYear;
+                    dateStr = `${py}-${String(pm).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    isOther = true;
+                } else if (i >= firstDay + daysInMonth) {
+                    day = i - firstDay - daysInMonth + 1;
+                    const nm = currentMonth + 2 > 12 ? 1 : currentMonth + 2;
+                    const ny = currentMonth + 2 > 12 ? currentYear + 1 : currentYear;
+                    dateStr = `${ny}-${String(nm).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    isOther = true;
+                } else {
+                    day = i - firstDay + 1;
+                    dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                }
+
+                const isToday = dateStr === todayStr;
+                const cls = `calendar-cell${isOther ? ' other-month' : ''}${isToday ? ' today' : ''}`;
+                const dayLeaves = getLeavesForDate(dateStr);
+                const clickableAttr = dayLeaves.length > 0
+                    ? ` onclick="showDayDetail('${dateStr}')" style="cursor: pointer;"`
+                    : '';
+
+                html += `<div class="${cls}"${clickableAttr}>`;
+                html += `<div class="calendar-date">${day}</div>`;
+
+                const show = dayLeaves.slice(0, MAX_TAGS);
+                show.forEach(l => {
+                    const typeClass = getLeaveTypeClass(l.leave_type);
+                    html += `<div class="leave-tag ${typeClass}" title="${l.name} ${l.job_position || ''} - ${l.leave_type}">${l.name} ${l.leave_type}</div>`;
+                });
+
+                if (dayLeaves.length > MAX_TAGS) {
+                    html += `<div class="leave-more" onclick="event.stopPropagation(); showDayDetail('${dateStr}')">+${dayLeaves.length - MAX_TAGS}건 더보기</div>`;
+                }
+
+                html += '</div>';
+            }
+
+            grid.innerHTML = html;
+        }
+
+        function showDayDetail(dateStr) {
+            const leaves = getLeavesForDate(dateStr);
+            const modal = document.getElementById('day-modal');
+            const parts = dateStr.split('-');
+            document.getElementById('day-modal-title').textContent = `${parts[0]}년 ${parseInt(parts[1])}월 ${parseInt(parts[2])}일 휴가자 (${leaves.length}명)`;
+
+            const statusMap = {
+                'APPROVED': '<span style="color:#10b981; font-weight:600;">승인</span>',
+                'PENDING': '<span style="color:#f59e0b; font-weight:600;">대기</span>',
+                'REQUESTED': '<span style="color:#f59e0b; font-weight:600;">요청</span>',
+                'REJECTED': '<span style="color:#ef4444; font-weight:600;">반려</span>'
+            };
+
+            let body = '';
+            if (leaves.length === 0) {
+                body = '<div style="text-align:center; padding:20px; color:#9ca3af;">휴가자가 없습니다.</div>';
+            } else {
+                leaves.forEach(l => {
+                    const typeClass = getLeaveTypeClass(l.leave_type);
+                    body += `
+                        <div class="day-leave-item">
+                            <div>
+                                <div style="font-weight:600; font-size:14px;">${l.name} <span style="font-weight:400; color:#6b7280; font-size:12px;">${l.job_position || ''}</span></div>
+                                <div style="font-size:12px; color:#6b7280; margin-top:2px;">${l.department}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <span class="leave-tag ${typeClass}" style="display:inline; padding:2px 8px;">${l.leave_type}</span>
+                                <div style="font-size:11px; margin-top:4px;">${statusMap[l.status] || l.status}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('day-modal-body').innerHTML = body;
+            modal.style.display = 'flex';
+        }
+
+        function closeDayModal() {
+            document.getElementById('day-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

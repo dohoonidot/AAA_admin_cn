@@ -1,0 +1,291 @@
+/* ============================================
+   커스텀 셀렉트 드롭다운 (WebView2 네이티브 <select> 대체)
+   ============================================ */
+
+/* 래퍼 */
+.custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+/* 트리거 (선택된 값 표시 영역) */
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 30px 6px 10px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 13px;
+    height: 36px;
+    line-height: 1.4;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    box-sizing: border-box;
+    color: #333;
+}
+
+/* 드롭다운 화살표 */
+.custom-select-trigger::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #999;
+    transition: transform 0.2s;
+    pointer-events: none;
+}
+
+.custom-select-wrapper.open .custom-select-trigger::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* 트리거 호버 */
+.custom-select-trigger:hover {
+    border-color: #3182F6;
+}
+
+/* 트리거 포커스 & 열림 */
+.custom-select-trigger:focus {
+    outline: none;
+    border-color: #3182F6;
+    box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.1);
+}
+
+.custom-select-wrapper.open .custom-select-trigger {
+    border-color: #3182F6;
+    box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.1);
+}
+
+/* 선택된 텍스트 */
+.custom-select-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+}
+
+/* 드롭다운 목록 */
+.custom-select-dropdown {
+    display: none;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    min-width: 100%;
+    max-height: 240px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    z-index: 99999;
+    margin-top: 4px;
+    padding: 4px 0;
+    box-sizing: border-box;
+}
+
+/* 열림 상태 */
+.custom-select-dropdown.open {
+    display: block;
+}
+
+/* 위쪽으로 열리는 경우 */
+.custom-select-dropdown.open-up {
+    margin-top: 0;
+    margin-bottom: 4px;
+}
+
+/* 드롭다운 스크롤바 */
+.custom-select-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 3px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+/* 옵션 아이템 */
+.custom-select-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.4;
+    transition: background-color 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+}
+
+.custom-select-option:hover {
+    background-color: #f0f7ff;
+}
+
+/* 선택된 옵션 */
+.custom-select-option.selected {
+    background-color: #e8f0fe;
+    color: #3182F6;
+    font-weight: 500;
+}
+
+/* 비활성화된 옵션 */
+.custom-select-option.disabled {
+    color: #bbb;
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
+/* 포커스된 옵션 (키보드 탐색) */
+.custom-select-option.focused {
+    background-color: #f0f7ff;
+}
+
+/* 비활성화된 셀렉트 */
+.custom-select-wrapper.disabled .custom-select-trigger {
+    background-color: #f5f5f5 !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+    border-color: #d1d3d4;
+}
+
+.custom-select-wrapper.disabled .custom-select-trigger::after {
+    border-top-color: #bbb;
+}
+
+.custom-select-wrapper.disabled .custom-select-trigger:hover {
+    border-color: #d1d3d4;
+}
+
+/* ===========================
+   폼 내부 셀렉트 (모달 등)
+   =========================== */
+.form-group .custom-select-wrapper {
+    width: 100%;
+    display: block;
+}
+
+.form-group .custom-select-trigger {
+    height: auto;
+    min-height: 36px;
+    padding: 8px 30px 8px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group .custom-select-dropdown {
+    border-radius: 4px;
+}
+
+.form-group .custom-select-option {
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+/* department-input-container 내부 래퍼 */
+.department-input-container .custom-select-wrapper {
+    width: 100%;
+    display: block;
+}
+
+/* ===========================
+   검색 기능 (옵션 많은 경우)
+   =========================== */
+.custom-select-search {
+    padding: 6px 10px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+}
+
+.custom-select-search input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    margin-bottom: 0 !important;
+}
+
+.custom-select-search input:focus {
+    border-color: #3182F6;
+    box-shadow: 0 0 0 1px rgba(49, 130, 246, 0.1);
+}
+
+/* 검색 결과 없음 */
+.custom-select-no-results {
+    padding: 12px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+}
+
+/* ===========================
+   툴바 셀렉트 (contract-editor 등)
+   =========================== */
+.toolbar-select-wrapper .custom-select-trigger {
+    height: 28px;
+    padding: 2px 24px 2px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+.toolbar-select-wrapper .custom-select-trigger::after {
+    right: 6px;
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+}
+
+.toolbar-select-wrapper .custom-select-option {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* ===========================
+   반응형
+   =========================== */
+@media (max-width: 768px) {
+    .custom-select-trigger {
+        font-size: 13px;
+        height: 34px;
+        padding: 5px 28px 5px 8px;
+    }
+
+    .custom-select-option {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .custom-select-dropdown {
+        max-height: 200px;
+    }
+}

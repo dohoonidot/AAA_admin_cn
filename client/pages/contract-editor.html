@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>매출/매입계약 기안서 - AAA 관리자 홈</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/custom-select.css">
+    <link rel="stylesheet" href="../css/contract-editor.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1 id="sidebar-title">AAA 관리자 홈</h1>
+            <div class="sidebar-tabs">`
+                <a href="../index.html" class="sidebar-tab">홈</a>
+                <a href="dashboard.html" class="sidebar-tab">대시보드</a>
+                <a href="users.html" class="sidebar-tab">사용자 관리</a>
+                <a href="gifts.html" class="sidebar-tab">선물보내기</a>
+                <a href="vacation-admin.html" class="sidebar-tab">휴가 총괄 관리</a>
+            </div>
+            <div class="user-info">
+                <span id="username-display"></span>
+                <button id="logout-btn" class="logout-btn">로그아웃</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="editor-container">
+                <!-- 툴바 -->
+                <div class="toolbar">
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-btn" id="undo-btn" title="실행 취소 (Ctrl+Z)">
+                            ↺
+                        </button>
+                        <button type="button" class="toolbar-btn" id="redo-btn" title="다시 실행 (Ctrl+Y)">
+                            ↻
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <select id="font-family" class="toolbar-select">
+                            <option value="맑은고딕" selected>맑은고딕</option>
+                            <option value="굴림">굴림</option>
+                            <option value="돋움">돋움</option>
+                            <option value="바탕">바탕</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                        </select>
+                        <select id="font-size" class="toolbar-select">
+                            <option value="8pt">8pt</option>
+                            <option value="9pt">9pt</option>
+                            <option value="10pt">10pt</option>
+                            <option value="11pt">11pt</option>
+                            <option value="12pt" selected>12pt</option>
+                            <option value="14pt">14pt</option>
+                            <option value="16pt">16pt</option>
+                            <option value="18pt">18pt</option>
+                            <option value="20pt">20pt</option>
+                            <option value="24pt">24pt</option>
+                        </select>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-btn" id="bold-btn" title="굵게 (Ctrl+B)">
+                            <strong>B</strong>
+                        </button>
+                        <button type="button" class="toolbar-btn" id="italic-btn" title="기울임 (Ctrl+I)">
+                            <em>I</em>
+                        </button>
+                        <button type="button" class="toolbar-btn" id="underline-btn" title="밑줄 (Ctrl+U)">
+                            <u>U</u>
+                        </button>
+                        <button type="button" class="toolbar-btn" id="strike-btn" title="취소선 (Ctrl+Shift+S)">
+                            <span class="strike-text">S</span>
+                        </button>
+                        <button type="button" class="toolbar-btn" id="superscript-btn" title="위첨자 (Ctrl+Shift+Plus)">
+                            x²
+                        </button>
+                        <button type="button" class="toolbar-btn" id="subscript-btn" title="아래첨자 (Ctrl+Equal)">
+                            x₂
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label class="color-picker" title="글자 색상">
+                            <span class="picker-label">A</span>
+                            <input type="color" id="text-color-input" value="#1a1f36">
+                        </label>
+                        <label class="color-picker" title="배경 색상">
+                            <span class="picker-label highlight">A</span>
+                            <input type="color" id="highlight-color-input" value="#fffacd">
+                        </label>
+                        <button type="button" class="toolbar-btn" id="clear-format-btn" title="서식 지우기">
+                            Tx
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <select id="line-height-select" class="toolbar-select" title="줄 간격">
+                            <option value="1.0">줄 간격 1.0</option>
+                            <option value="1.15">줄 간격 1.15</option>
+                            <option value="1.5" selected>줄 간격 1.5</option>
+                            <option value="2.0">줄 간격 2.0</option>
+                            <option value="2.5">줄 간격 2.5</option>
+                            <option value="3.0">줄 간격 3.0</option>
+                        </select>
+                        <select id="paragraph-spacing-select" class="toolbar-select" title="단락 간격">
+                            <option value="0">단락 간격 없음</option>
+                            <option value="6pt" selected>단락 간격 6pt</option>
+                            <option value="12pt">단락 간격 12pt</option>
+                            <option value="18pt">단락 간격 18pt</option>
+                            <option value="24pt">단락 간격 24pt</option>
+                        </select>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-btn" id="align-left-btn" title="왼쪽 정렬">
+                            ⬅
+                        </button>
+                        <button type="button" class="toolbar-btn" id="align-center-btn" title="가운데 정렬">
+                            ⬌
+                        </button>
+                        <button type="button" class="toolbar-btn" id="align-right-btn" title="오른쪽 정렬">
+                            ➡
+                        </button>
+                        <button type="button" class="toolbar-btn" id="align-justify-btn" title="양쪽 정렬">
+                            ⬌⬌
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-btn" id="bullet-list-btn" title="글머리 기호">
+                            ••
+                        </button>
+                        <button type="button" class="toolbar-btn" id="number-list-btn" title="번호 매기기">
+                            1.
+                        </button>
+                        <button type="button" class="toolbar-btn" id="indent-btn" title="들여쓰기 (Ctrl+])">
+                            ↦
+                        </button>
+                        <button type="button" class="toolbar-btn" id="outdent-btn" title="내어쓰기 (Ctrl+[)">
+                            ↤
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-btn" id="insert-table-btn" title="표 삽입">
+                            📊 표
+                        </button>
+                        <button type="button" class="toolbar-btn" id="insert-image-btn" title="이미지 삽입">
+                            🖼️ 이미지
+                        </button>
+                        <button type="button" class="toolbar-btn" id="insert-image-file-btn" title="이미지 파일 업로드">
+                            📁 이미지 업로드
+                        </button>
+                        <button type="button" class="toolbar-btn" id="insert-link-btn" title="하이퍼링크 삽입">
+                            🔗 링크
+                        </button>
+                        <button type="button" class="toolbar-btn" id="remove-link-btn" title="링크 제거">
+                            🔗❌
+                        </button>
+                        <button type="button" class="toolbar-btn" id="insert-hr-btn" title="구분선 삽입">
+                            ─
+                        </button>
+                        <button type="button" class="toolbar-btn" id="insert-special-char-btn" title="특수 문자 삽입">
+                            Ω
+                        </button>
+                        <button type="button" class="toolbar-btn" id="insert-date-btn" title="날짜 삽입">
+                            📅 날짜
+                        </button>
+                        <button type="button" class="toolbar-btn" id="insert-page-break-btn" title="페이지 나누기">
+                            📄 페이지 나누기
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-btn" id="find-replace-btn" title="찾기/바꾸기 (Ctrl+F)">
+                            🔍 찾기
+                        </button>
+                        <button type="button" class="toolbar-btn" id="select-all-btn" title="전체 선택 (Ctrl+A)">
+                            전체 선택
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-btn" id="save-btn" title="저장">
+                            💾 저장
+                        </button>
+                        <button type="button" class="toolbar-btn" id="print-btn" title="인쇄">
+                            🖨️ 인쇄
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 에디터 영역 -->
+                <div class="editor-wrapper">
+                    <div id="editor" contenteditable="true" class="editor-content" spellcheck="false" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" autocorrect="off" autocomplete="off" autocapitalize="off">
+                        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: white;">
+                          <!-- 제목 -->
+                          <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #4A6CF7; font-size: 20px; font-weight: bold; margin: 0;">매출/매입계약 기안서</h1>
+                          </div>
+
+                          <hr style="border: 2px solid #4A6CF7; margin: 20px 0;">
+
+                          <!-- 계약 개요 섹션 -->
+                          <div style="position: relative; margin-top: 30px; margin-bottom: 16px;">
+                            <h2 style="color: #4A6CF7; font-size: 18px; font-weight: bold; margin: 0; display: inline-block;">📋 계약 개요</h2>
+                            <span style="position: absolute; right: 0; top: 0; color: #6B7280; font-size: 12px;">부가세별도</span>
+                          </div>
+
+                          <!-- 계약 개요 테이블 -->
+                          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #E9ECEF;">
+                            <thead>
+                              <tr style="background-color: #4A6CF7; color: black;">
+                                <th style="padding: 12px; border: 1px solid #E9ECEF; text-align: center; font-weight: bold; font-size: 12px; color: black;">항목</th>
+                                <th style="padding: 12px; border: 1px solid #E9ECEF; text-align: center; font-weight: bold; font-size: 12px; color: black;">금액</th>
+                                <th style="padding: 12px; border: 1px solid #E9ECEF; text-align: center; font-weight: bold; font-size: 12px; color: black;">거래처</th>
+                                <th style="padding: 12px; border: 1px solid #E9ECEF; text-align: center; font-weight: bold; font-size: 12px; color: black;">세금계산서 발행예정일</th>
+                                <th style="padding: 12px; border: 1px solid #E9ECEF; text-align: center; font-weight: bold; font-size: 12px; color: black;">결제조건</th>
+                                <th style="padding: 12px; border: 1px solid #E9ECEF; text-align: center; font-weight: bold; font-size: 12px; color: black;">특이사항</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <!-- 1) H/W 매출 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">1) H/W 매출</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 2) S/W 매출 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">2) S/W 매출</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 3) 컨설팅 또는 개발매출 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">3) 컨설팅 또는 개발매출</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 4) 기타( ) 매출 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">4) 기타( ) 매출</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 매출액 (합계) - 노란색 배경 -->
+                              <tr style="background-color: #FFF9C4;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">매출액</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 3rd Party 컨설팅 또는 개발용역비 원가 - 파란색 배경 -->
+                              <tr style="background-color: #4A6CF7;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">3rd Party 컨설팅 또는 개발용역비 원가</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: white;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: white;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: white;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: white;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: white;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 1) 빈 행 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">1)</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 2) 빈 행 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">2)</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 3) 빈 행 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">3)</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 매입액 (합계) - 노란색 배경 -->
+                              <tr style="background-color: #FFF9C4;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">매입액</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 원가총액 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">원가총액</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 매출총이익 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">매출총이익</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 이익율 -->
+                              <tr style="background-color: white;">
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; background-color: #F8F9FA; font-weight: bold; font-size: 13px; color: #1A1D1F;">이익율</td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                                <td style="padding: 8px; border: 1px solid #E9ECEF; font-size: 12px; color: #1A1D1F;" contenteditable="true"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                          <hr style="border: 1px solid #E9ECEF; margin: 30px 0;">
+
+                          <!-- 매출 계약 내역서 섹션 -->
+                          <h2 style="color: #4A6CF7; font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 16px;">📄 매출 계약 내역서</h2>
+
+                          <!-- 매출 계약 내역서 테이블 (2열 테이블) -->
+                          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #E9ECEF; border-radius: 8px; overflow: hidden; background-color: white;">
+                            <tbody>
+                              <!-- 계약명 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; width: 30%; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약명</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약업체 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약업체</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약기간 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약기간</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약금액 (부가세별도) -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약금액 (부가세별도)</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 청구시점 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">청구시점</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 결제조건 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">결제조건</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약일자 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약일자</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 당사 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">당사</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약사 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약사</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 첨부 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: top;">첨부</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: top;" contenteditable="true">
+                                  <p style="margin: 0 0 4px 0;">1. 계약서 (Contract)</p>
+                                  <p style="margin: 0;">2. PL Sheet [ 반드시 첨부해 주세요] (PL Sheet [Please attach without fail])</p>
+                                </td>
+                              </tr>
+
+                              <!-- 특이사항 (멀티라인) -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: top;">특이사항</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: top; min-height: 100px;" contenteditable="true"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                          <hr style="border: 1px solid #E9ECEF; margin: 30px 0;">
+
+                          <!-- 매입 계약 내역서_1 섹션 -->
+                          <h2 style="color: #4A6CF7; font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 16px;">📄 매입 계약 내역서_1</h2>
+
+                          <!-- 매입 계약 내역서_1 테이블 (2열 테이블) -->
+                          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #E9ECEF; border-radius: 8px; overflow: hidden; background-color: white;">
+                            <tbody>
+                              <!-- 계약명 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; width: 30%; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약명</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약업체 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약업체</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약기간 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약기간</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약금액 (부가세별도) -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약금액 (부가세별도)</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 청구시점 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">청구시점</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 결제조건 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">결제조건</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약일자 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약일자</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 당사 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">당사</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약사 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약사</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 첨부 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: top;">첨부</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: top;" contenteditable="true">
+                                  <p style="margin: 0 0 4px 0;">1. 계약서 (Contract)</p>
+                                  <p style="margin: 0;">2. PL Sheet [ 반드시 첨부해 주세요] (PL Sheet [Please attach without fail])</p>
+                                </td>
+                              </tr>
+
+                              <!-- 특이사항 (멀티라인) -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: top;">특이사항</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: top; min-height: 100px;" contenteditable="true"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                          <hr style="border: 1px solid #E9ECEF; margin: 30px 0;">
+
+                          <!-- 매입 계약 내역서_2 섹션 -->
+                          <h2 style="color: #4A6CF7; font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 16px;">📄 매입 계약 내역서_2</h2>
+
+                          <!-- 매입 계약 내역서_2 테이블 (2열 테이블) -->
+                          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #E9ECEF; border-radius: 8px; overflow: hidden; background-color: white;">
+                            <tbody>
+                              <!-- 계약명 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; width: 30%; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약명</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약업체 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약업체</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약기간 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약기간</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약금액 (부가세별도) -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약금액 (부가세별도)</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 청구시점 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">청구시점</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 결제조건 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">결제조건</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약일자 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약일자</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 당사 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">당사</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 계약사 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: middle;">계약사</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: middle;" contenteditable="true"></td>
+                              </tr>
+
+                              <!-- 첨부 -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: top;">첨부</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: top;" contenteditable="true">
+                                  <p style="margin: 0 0 4px 0;">1. 계약서 (Contract)</p>
+                                  <p style="margin: 0;">2. PL Sheet [ 반드시 첨부해 주세요] (PL Sheet [Please attach without fail])</p>
+                                </td>
+                              </tr>
+
+                              <!-- 특이사항 (멀티라인) -->
+                              <tr>
+                                <td style="padding: 10px; background-color: #F8F9FA; border: 1px solid #E9ECEF; font-weight: bold; font-size: 13px; color: black; vertical-align: top;">특이사항</td>
+                                <td style="padding: 10px; border: 1px solid #E9ECEF; font-size: 12px; color: black; vertical-align: top; min-height: 100px;" contenteditable="true"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                          <hr style="border: 1px solid #E9ECEF; margin: 30px 0;">
+
+                          <!-- 안내사항 섹션 -->
+                          <h2 style="color: #4A6CF7; font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 16px;">📌 안내사항</h2>
+
+                          <ul style="line-height: 2.0; color: #6B7280; font-size: 11px; margin: 0; padding-left: 20px;">
+                            <li style="margin-bottom: 4px;">특이사항란에는 계약 진행시 유의할점 및 위약사항에 따른 불이익등을 기입해 주시기 바랍니다.</li>
+                            <li style="margin-bottom: 4px;">계약내용란에는 유지보수내역을 상세히 기입해 주시기 바랍니다. 예) 인력투입 시 투입인원, 업무내용 등</li>
+                            <li style="margin-bottom: 4px;">계약No. 란은 관리팀에서 작성할 부분이니 기입하지 마시기 바랍니다.</li>
+                            <li style="margin-bottom: 4px;">매출& 매입계약 PA 요약 및 계약서(원본 or 사본) 첨부.</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/utils/config.js"></script>
+    <script src="../js/utils/custom-select.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/utils/auth.js"></script>
+    <!-- 향상된 CellEditor 기반 버전 -->
+    <script src="../js/contract-editor-enhanced.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>임의휴가부여 - AAA 관리자 홈</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/custom-select.css">
+    <link rel="stylesheet" href="../css/vacation-admin.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>AAA 관리자 홈</h1>
+            <div class="sidebar-tabs">
+                <a href="../index.html" class="sidebar-tab">홈</a>
+                <a href="dashboard.html" class="sidebar-tab">대시보드</a>
+                <div class="sidebar-tab-dropdown">
+                    <div class="sidebar-tab sidebar-tab-with-dropdown">
+                        사용자 관리
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="sidebar-dropdown-content">
+                        <a href="users.html" class="sidebar-dropdown-item">재직자</a>
+                        <a href="resigned-users.html" class="sidebar-dropdown-item">퇴사자</a>
+                    </div>
+                </div>
+                <a href="gifts.html" class="sidebar-tab">선물보내기</a>
+                <div class="sidebar-tab-dropdown">
+                    <div class="sidebar-tab sidebar-tab-with-dropdown active">
+                        휴가 총괄 관리
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="sidebar-dropdown-content">
+                        <a href="vacation-requests.html" class="sidebar-dropdown-item">부여요청목록</a>
+                        <a href="vacation-history.html" class="sidebar-dropdown-item">부여내역</a>
+                        <a href="vacation-status.html" class="sidebar-dropdown-item">전사원 휴가현황</a>
+                        <a href="vacation-proxy.html" class="sidebar-dropdown-item" style="display: none;">휴가 대리결제</a>
+                        <a href="vacation-manual.html" class="sidebar-dropdown-item active">임의휴가부여</a>
+                        <a href="vacation-approvers.html" class="sidebar-dropdown-item">권한관리자 지정</a>
+                        <a href="vacation-promotion.html" class="sidebar-dropdown-item" style="display: none;">연차촉진관리</a>
+                        <a href="vacation-calendar.html" class="sidebar-dropdown-item">휴가 캘린더</a>
+                        <a href="vacation-approval-history.html" class="sidebar-dropdown-item">휴가신청승인 관리</a>
+                    </div>
+                </div>
+            </div>
+            <div class="user-info">
+                <span id="username-display"></span>
+                <button id="logout-btn" class="logout-btn">로그아웃</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <div class="header-content">
+                    <div class="title-section">
+                        <h1>임의휴가부여</h1>
+                        <p class="subtitle">관리자가 직원에게 직접 휴가를 부여할 수 있습니다</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 부여 폼 -->
+            <div class="filter-section">
+                <div class="filter-card" style="padding: 32px; display: block;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #f1f3f4;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: 700;">📝</div>
+                        <h3 style="margin: 0; font-size: 20px; font-weight: 700; color: #191f28;">휴가 부여 정보 입력</h3>
+                    </div>
+
+                    <!-- 기본 정보 섹션 -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-size: 14px; font-weight: 600; color: #6c757d; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.5px;">기본 정보</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <!-- 연도 선택 -->
+                            <div class="form-group">
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #495057; margin-bottom: 8px;">
+                                    연도 <span style="color: #ef4444;">*</span>
+                                </label>
+                                <select id="year-select" class="filter-select" required style="width: 100%;">
+                                    <!-- JavaScript로 동적 생성 -->
+                                </select>
+                            </div>
+
+                            <!-- 휴가 유형 -->
+                            <div class="form-group">
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #495057; margin-bottom: 8px;">
+                                    휴가 유형 <span style="color: #ef4444;">*</span>
+                                </label>
+                                <select id="leave-type-select" class="filter-select" required style="width: 100%;">
+                                    <option value="">유형을 선택하세요</option>
+                                    <option value="연차">연차</option>
+                                    <option value="예비군/민방위 연차">예비군/민방위 연차</option>
+                                    <option value="병가">병가</option>
+                                    <option value="경조사휴가">경조사휴가</option>
+                                    <option value="산전후휴가">산전후휴가</option>
+                                    <option value="결혼휴가">결혼휴가</option>
+                                    <option value="배우자 출산휴가">배우자 출산휴가</option>
+                                    <option value="직접입력">직접입력</option>
+                                </select>
+                                <!-- 직접입력 시 표시되는 입력 필드 -->
+                                <input type="text" id="custom-leave-type" class="filter-select"
+                                       placeholder="직접 입력하세요" style="width: 100%; margin-top: 8px; display: none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 대상 직원 선택 섹션 -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-size: 14px; font-weight: 600; color: #6c757d; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.5px;">대상 직원</h4>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #495057; margin-bottom: 8px;">
+                                직원 선택 <span style="color: #ef4444;">*</span>
+                            </label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+                                <div>
+                                    <select id="department-select" class="filter-select" style="width: 100%;">
+                                        <option value="">부서를 선택하세요</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <select id="user-select" class="filter-select" required style="width: 100%;">
+                                        <option value="">부서를 먼저 선택하세요</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="selected-user-info" style="padding: 14px 16px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1.5px solid #0ea5e9; border-radius: 10px; display: none; margin-top: 12px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">✓</div>
+                                    <div>
+                                        <div style="font-size: 12px; color: #0369a1; font-weight: 600; margin-bottom: 2px;">선택된 직원</div>
+                                        <div style="font-size: 15px; color: #0c4a6e; font-weight: 700;" id="selected-user-name">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 휴가 정보 섹션 -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-size: 14px; font-weight: 600; color: #6c757d; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.5px;">휴가 정보</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <!-- 부여 일수 -->
+                            <div class="form-group">
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #495057; margin-bottom: 8px;">
+                                    부여 일수 <span style="color: #ef4444;">*</span>
+                                </label>
+                                <input type="number" id="grant-days" class="filter-select" 
+                                       placeholder="예: 3.5 또는 -1" step="0.5" required style="width: 100%;">
+                                <small style="color: #6b7280; font-size: 12px; margin-top: 6px; display: block; line-height: 1.4;">
+                                    💡 소수점 입력 가능 (0.5 = 반차), 마이너스 값으로 휴가 차감 가능
+                                </small>
+                            </div>
+
+                            <!-- 휴가 리셋 날짜 -->
+                            <div class="form-group">
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #495057; margin-bottom: 8px;">
+                                    휴가 리셋 날짜
+                                </label>
+                                <input type="datetime-local" id="leave-reset-date" class="filter-select" style="width: 100%;">
+                                <small style="color: #6b7280; font-size: 12px; margin-top: 6px; display: block; line-height: 1.4;">
+                                    📅 해당 날짜부터 휴가가 적용됩니다 (선택사항)
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 메모 섹션 -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-size: 14px; font-weight: 600; color: #6c757d; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.5px;">부여 사유</h4>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #495057; margin-bottom: 8px;">
+                                메모 <span style="color: #ef4444;">*</span>
+                            </label>
+                            <textarea id="memo" class="filter-select" rows="5" 
+                                      placeholder="예: 야근 보상, 특별 포상, 회사 행사 참여 등&#10;&#10;이 메모는 기록으로 남으며, 추후 감사 시 참고자료가 됩니다." 
+                                      required style="resize: vertical; width: 100%; font-family: inherit; line-height: 1.6;"></textarea>
+                            <small style="color: #6b7280; font-size: 12px; margin-top: 6px; display: block; line-height: 1.4;">
+                                ⚠️ 최소 5자 이상 입력해주세요
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- 버튼 영역 -->
+                    <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 24px; border-top: 2px solid #f1f3f4;">
+                        <button id="reset-btn" style="padding: 12px 28px; background-color: #f8f9fa; color: #495057; border: 1.5px solid #dee2e6; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-size: 14px;" 
+                                onmouseover="this.style.backgroundColor='#e9ecef'; this.style.borderColor='#adb5bd';" 
+                                onmouseout="this.style.backgroundColor='#f8f9fa'; this.style.borderColor='#dee2e6';">
+                            🔄 초기화
+                        </button>
+                        <button id="grant-btn" style="padding: 12px 28px; background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-size: 14px; box-shadow: 0 2px 8px rgba(0, 102, 255, 0.2);" 
+                                onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(0, 102, 255, 0.3)';" 
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 102, 255, 0.2)';">
+                            ✅ 휴가 부여하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/utils/config.js"></script>
+    <script src="../js/utils/custom-select.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/utils/auth.js"></script>
+    <script>
+        let departments = [];
+        let currentMembers = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            controlSidebarMenus();
+
+            // admin 계정 확인
+            const adminId = localStorage.getItem('userId');
+            if (!adminId) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '../index.html';
+                return;
+            }
+
+            initializeYearSelect();
+            loadDepartments();
+            setupEventListeners();
+        });
+
+        // 연도 선택 초기화
+        function initializeYearSelect() {
+            const yearSelect = document.getElementById('year-select');
+            const currentYear = new Date().getFullYear();
+            
+            // 현재 연도부터 5년 후까지
+            for (let year = currentYear; year <= currentYear + 5; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = `${year}년`;
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // 부서 목록 로드
+        async function loadDepartments() {
+            try {
+                console.log('부서 목록 조회 시작...');
+                
+                const response = await fetch('/api/getDepartmentList');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('부서 목록 응답:', data);
+
+                departments = data.departments || [];
+
+                const select = document.getElementById('department-select');
+                select.innerHTML = '<option value="">부서를 선택하세요</option>';
+
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    select.appendChild(option);
+                });
+
+                console.log('부서 목록 로드 완료:', departments.length);
+            } catch (error) {
+                console.error('부서 목록 로드 실패:', error);
+                alert('부서 목록을 불러오는데 실패했습니다.');
+            }
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // 부서 선택 시 부서원 로드
+            document.getElementById('department-select').addEventListener('change', onDepartmentChange);
+
+            // 사용자 선택 시 정보 표시
+            document.getElementById('user-select').addEventListener('change', onUserSelect);
+
+            // 휴가 유형 선택 시 직접입력 필드 토글
+            document.getElementById('leave-type-select').addEventListener('change', onLeaveTypeChange);
+
+            // 휴가 부여 버튼
+            document.getElementById('grant-btn').addEventListener('click', grantVacation);
+
+            // 초기화 버튼
+            document.getElementById('reset-btn').addEventListener('click', resetForm);
+        }
+
+        // 부서 선택 시 부서원 로드
+        async function onDepartmentChange(e) {
+            const department = e.target.value;
+            const userSelect = document.getElementById('user-select');
+            const selectedUserInfo = document.getElementById('selected-user-info');
+
+            if (!department) {
+                userSelect.innerHTML = '<option value="">부서를 먼저 선택하세요</option>';
+                selectedUserInfo.style.display = 'none';
+                return;
+            }
+
+            try {
+                console.log('부서원 조회 시작:', department);
+                
+                userSelect.innerHTML = '<option value="">불러오는 중...</option>';
+
+                const response = await fetch(`/api/getDepartmentMembers?department=${encodeURIComponent(department)}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('부서원 응답:', data);
+
+                currentMembers = data[department] || [];
+                
+                userSelect.innerHTML = '<option value="">직원을 선택하세요</option>';
+                
+                currentMembers.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.user_id;
+                    option.textContent = `${member.name} (${member.job_position})`;
+                    option.setAttribute('data-name', member.name);
+                    option.setAttribute('data-position', member.job_position);
+                    userSelect.appendChild(option);
+                });
+
+                console.log('부서원 로드 완료:', currentMembers.length);
+            } catch (error) {
+                console.error('부서원 로드 실패:', error);
+                alert('부서원 목록을 불러오는데 실패했습니다.');
+                userSelect.innerHTML = '<option value="">부서원 목록 로드 실패</option>';
+            }
+        }
+
+        // 사용자 선택 시 정보 표시
+        function onUserSelect(e) {
+            const userId = e.target.value;
+            const selectedUserInfo = document.getElementById('selected-user-info');
+            const selectedUserName = document.getElementById('selected-user-name');
+
+            if (!userId) {
+                selectedUserInfo.style.display = 'none';
+                return;
+            }
+
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const userName = selectedOption.getAttribute('data-name');
+            const userPosition = selectedOption.getAttribute('data-position');
+
+            selectedUserName.textContent = `${userName} (${userPosition})`;
+            selectedUserInfo.style.display = 'block';
+        }
+
+        // 휴가 유형 선택 시 직접입력 필드 토글
+        function onLeaveTypeChange(e) {
+            const leaveType = e.target.value;
+            const customInput = document.getElementById('custom-leave-type');
+
+            if (leaveType === '직접입력') {
+                customInput.style.display = 'block';
+                customInput.required = true;
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+                customInput.required = false;
+                customInput.value = '';
+            }
+        }
+
+        // 휴가 부여
+        async function grantVacation() {
+            const adminId = localStorage.getItem('userId');
+            const year = parseInt(document.getElementById('year-select').value);
+            let leaveType = document.getElementById('leave-type-select').value;
+            const customLeaveType = document.getElementById('custom-leave-type').value.trim();
+            const userId = document.getElementById('user-select').value;
+            const grantDays = parseFloat(document.getElementById('grant-days').value);
+            const leaveResetDate = document.getElementById('leave-reset-date').value;
+            const memo = document.getElementById('memo').value.trim();
+
+            // 직접입력 선택 시 입력 필드 값 사용
+            if (leaveType === '직접입력') {
+                if (!customLeaveType) {
+                    alert('직접 입력할 휴가 유형을 입력해주세요.');
+                    document.getElementById('custom-leave-type').focus();
+                    return;
+                }
+                leaveType = customLeaveType;
+            }
+
+            // 유효성 검사
+            if (!year || !leaveType || !userId || !grantDays || !memo) {
+                alert('필수 항목을 모두 입력해주세요.');
+                return;
+            }
+
+            if (grantDays === 0 || isNaN(grantDays)) {
+                alert('부여 일수를 입력해주세요. (0은 입력할 수 없습니다)');
+                return;
+            }
+
+            if (memo.length < 5) {
+                alert('부여 사유를 5자 이상 입력해주세요.');
+                return;
+            }
+
+            // 사용자 이름 가져오기
+            const userSelect = document.getElementById('user-select');
+            const selectedOption = userSelect.options[userSelect.selectedIndex];
+            const userName = selectedOption.getAttribute('data-name');
+
+            if (!confirm(`${userName}님에게 ${leaveType} ${grantDays}일을 부여하시겠습니까?\n\n부여 사유: ${memo}`)) {
+                return;
+            }
+
+            // datetime-local 값을 RFC3339 형식으로 변환
+            let formattedLeaveResetDate = null;
+            if (leaveResetDate) {
+                // "2026-01-16T15:03" -> "2026-01-16T15:03:00+09:00"
+                formattedLeaveResetDate = leaveResetDate + ':00+09:00';
+            }
+
+            try {
+                const requestBody = {
+                    admin_id: adminId,
+                    year: year,
+                    leave_type: leaveType,
+                    user_id: userId,
+                    grant_days: grantDays,
+                    leave_reset_date: formattedLeaveResetDate,
+                    memo: memo
+                };
+
+                console.log('휴가 부여 요청:', requestBody);
+
+                const response = await fetch('/admin/leave/customGrant', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('휴가 부여 응답:', data);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                alert(`${userName}님에게 휴가가 성공적으로 부여되었습니다.`);
+                resetForm();
+
+            } catch (error) {
+                console.error('휴가 부여 실패:', error);
+                alert('휴가 부여에 실패했습니다: ' + error.message);
+            }
+        }
+
+        // 폼 초기화
+        function resetForm() {
+            if (!confirm('입력한 내용을 모두 초기화하시겠습니까?')) {
+                return;
+            }
+
+            document.getElementById('year-select').value = new Date().getFullYear();
+            document.getElementById('leave-type-select').value = '';
+            document.getElementById('custom-leave-type').value = '';
+            document.getElementById('custom-leave-type').style.display = 'none';
+            document.getElementById('custom-leave-type').required = false;
+            document.getElementById('department-select').value = '';
+            document.getElementById('user-select').innerHTML = '<option value="">부서를 먼저 선택하세요</option>';
+            document.getElementById('grant-days').value = '';
+            document.getElementById('leave-reset-date').value = '';
+            document.getElementById('memo').value = '';
+            document.getElementById('selected-user-info').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
